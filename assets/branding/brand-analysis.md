@@ -110,25 +110,25 @@ Avoid:
 
 ## Sources Inspected
 
-- `ClassTrack Attendance System/README.md`
-- `ClassTrack Attendance System/DOCUMENTATION.md`
-- `ClassTrack Attendance System/requirements.txt`
-- `ClassTrack Attendance System/Attendance_System/urls.py`
-- `ClassTrack Attendance System/accounts/urls.py`
-- `ClassTrack Attendance System/academics/urls.py`
-- `ClassTrack Attendance System/dashboard/urls.py`
-- `ClassTrack Attendance System/reports/urls.py`
-- `ClassTrack Attendance System/accounts/models.py`
-- `ClassTrack Attendance System/academics/models.py`
-- `ClassTrack Attendance System/accounts/forms.py`
-- `ClassTrack Attendance System/academics/forms.py`
-- `ClassTrack Attendance System/accounts/views.py`
-- `ClassTrack Attendance System/academics/views.py`
-- `ClassTrack Attendance System/dashboard/views.py`
-- `ClassTrack Attendance System/reports/views.py`
-- `ClassTrack Attendance System/core/templates/`
-- `ClassTrack Attendance System/dashboard/templates/dashboard/`
-- `ClassTrack Attendance System/reports/templates/reports/`
-- `ClassTrack Attendance System/core/static/css/`
-- `ClassTrack Attendance System/core/static/images/`
+- `README.md`
+- `docs/DOCUMENTATION.md`
+- `requirements.txt`
+- `classtrack/urls.py`
+- `accounts/urls.py`
+- `academics/urls.py`
+- `dashboard/urls.py`
+- `reports/urls.py`
+- `accounts/models.py`
+- `academics/models.py`
+- `accounts/forms.py`
+- `academics/forms.py`
+- `accounts/views/`
+- `academics/views/`
+- `dashboard/views/`
+- `reports/views/`
+- `core/templates/`
+- `dashboard/templates/dashboard/`
+- `reports/templates/reports/`
+- `core/static/css/`
+- `core/static/images/`
 - `graphify-out/graph.json` and Graphify query output as supporting architecture context

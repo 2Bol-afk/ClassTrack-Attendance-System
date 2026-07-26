@@ -1,0 +1,390 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClassTrack Teacher Dashboard</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+  <!-- Additional Internal CSS for improvements -->
+  <style>
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f8fafc;
+      min-height: 100vh;
+    }
+
+    /* ---------------- Sidebar - FIXED POSITION ---------------- */
+    .left-container {
+      width: 280px;
+      background-color: #1f2430;
+      padding: 25px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+
+    .left-container h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+
+    .left-container h5 {
+      font-weight: 500;
+      color: #8b92a8;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+
+    /* Menu */
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .menu a {
+      color: #a0aec0;
+      text-decoration: none;
+      padding: 12px 16px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.2s ease;
+      font-weight: 500;
+      font-size: 15px;
+    }
+
+    .menu a:hover {
+      background-color: #2a3241;
+      color: #ffffff;
+    }
+
+    .menu a.active {
+      background-color: #3b82f6;
+      color: #ffffff;
+    }
+
+    .menu a svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    /* Scrollbar for sidebar */
+    .left-container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .left-container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .left-container::-webkit-scrollbar-thumb {
+      background: #3a4456;
+      border-radius: 10px;
+    }
+
+    .left-container::-webkit-scrollbar-thumb:hover {
+      background: #4a5568;
+    }
+
+    /* Main content adjusts to sidebar width */
+    .main-content {
+      margin-left: 280px;
+      padding: 30px;
+      background-color: #f8fafc;
+      min-height: 100vh;
+      color: #000;
+    }
+
+    /* Dashboard Header */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #000;
+      color: #fff;
+      padding: 25px 30px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .dashboard-header h2 {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    /* Table Styling */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      font-size: 14px;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f3f4f6;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    tr:hover {
+      background-color: #f9fafb;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-add {
+      background-color: #1d4ed8;
+      color: #fff;
+    }
+
+    .btn-add:hover {
+      background-color: #1e40af;
+    }
+
+    .btn-edit {
+      background-color: #16a34a;
+      color: #fff;
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+
+    .btn-edit:hover {
+      background-color: #15803d;
+    }
+
+    .btn-delete {
+      background-color: #dc2626;
+      color: #fff;
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+
+    .btn-delete:hover {
+      background-color: #b91c1c;
+    }
+
+    /* Filters / Dropdowns */
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+
+    .filters label {
+      font-weight: 500;
+      color: #374151;
+    }
+
+    .filters select {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+      min-width: 150px;
+      background-color: #fff;
+      cursor: pointer;
+    }
+
+    .filters select:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    /* Content Cards */
+    .content-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    .content-card h3 {
+      margin-bottom: 15px;
+      font-size: 20px;
+      font-weight: 600;
+      color: #111827;
+    }
+    .error-box {
+  background-color: #fee2e2; /* light red */
+  border-left: 5px solid #dc2626; /* red-600 */
+  padding: 12px 15px;
+  border-radius: 8px;
+  color: #b91c1c; /* red-700 */
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+.info-note {
+    background-color: #f0f8ff;
+    border-left: 4px solid #1e90ff;
+    padding: 10px;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+
+    /* Responsive */
+    @media(max-width: 1024px) {
+      .left-container {
+        width: 240px;
+      }
+
+      .main-content {
+        margin-left: 240px;
+        padding: 20px;
+      }
+    }
+
+    @media(max-width: 768px) {
+      .left-container {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 15px;
+      }
+
+      .dashboard-header {
+        padding: 20px;
+      }
+
+      .dashboard-header h2 {
+        font-size: 22px;
+      }
+
+      .filters {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .filters select {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="left-container">
+    <h1>Teacher</h1>
+
+    
+    <div class="menu">
+      <a href="{% url 'dashboard:teacher_dashboard' %}" class="{% if request.path == '/teacher/' %}active{% endif %}">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M11.47 3.84a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.06l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 001.061 1.06l8.69-8.69z" />
+          <path d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-3a.75.75 0 00-.75.75V21a.75.75 0 01-.75.75H5.625a1.875 1.875 0 01-1.875-1.875v-6.198a2.29 2.29 0 00.091-.086L12 5.43z" />
+        </svg>
+        Home
+      </a>
+      <a href="{% url 'academics:attendance' %}" class="{% if request.path == '/teacher/attendance/' %}active{% endif %}">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+             class="bi bi-calendar2-check-fill" viewBox="0 0 16 16">
+          <path
+            d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5m9.954 3H2.545c-.3 0-.545.224-.545.5v1c0 .276.244.5.545.5h10.91c.3 0 .545-.224.545-.5v-1c0-.276-.244-.5-.546-.5m-2.6 5.854a.5.5 0 0 0-.708-.708L7.5 10.793 6.354 9.646a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0z" />
+        </svg>
+        Attendance
+      </a>
+      <a href="{% url 'academics:subject_assign' %}" class="{% if request.path == '/teacher/subject-assign/' %}active{% endif %}">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M11.25 4.533A9.707 9.707 0 006 3a9.735 9.735 0 00-3.25.555.75.75 0 00-.5.707v14.25a.75.75 0 001 .707A8.237 8.237 0 016 18.75c1.995 0 3.823.707 5.25 1.886V4.533zM12.75 20.636A8.214 8.214 0 0118 18.75c.966 0 1.89.166 2.75.47a.75.75 0 001-.708V4.262a.75.75 0 00-.5-.707A9.735 9.735 0 0018 3a9.707 9.707 0 00-5.25 1.533v16.103z" />
+        </svg>
+        Subject Assign
+      </a>
+      <a href="{% url 'academics:student_list' %}" class="{% if request.path == '/teacher/student-list/' %}active{% endif %}">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z" />
+        </svg>
+        Student List
+      </a>
+      <!-- Reports Dropdown -->
+<div class="menu-dropdown">
+  <a href="#" class="dropdown-toggle {% if active == 'reports' %}active{% endif %}">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-data-fill" viewBox="0 0 16 16">
+      <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5z"/>
+      <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5zM10 8a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0zm-6 4a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0zm4-3a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1"/>
+    </svg>
+    Reports
+    <span class="arrow">&#9662;</span#
+  </a>
+
+  <!-- Dropdown Items -->
+  <div class="dropdown-menu">
+    <a href="{% url 'reports:attendance_overview' %}">Subject Attendance Report</a>
+    <a href="{% url 'reports:attendance_summary' %}">Attendance Summary</a>
+    <a href="{% url 'reports:detailed_attendance' %}">Student Detailed Report</a>
+  </div>
+</div>
+
+      <a href="{% url 'accounts:logout' %}"class="{% if active == 'profile' %}active{% endif %}">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-logout"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" /><path d="M9 12h12l-3 -3" /><path d="M18 15l3 -3" /></svg>
+        Logout
+      </a>
+
+
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    {% block content %}
+    <!-- Dynamic page content goes here -->
+    {% endblock %}
+  </div>
+<script src="{% static 'js/reports.js' %}"></script>
+</body>
+</html>
