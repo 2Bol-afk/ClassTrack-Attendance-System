@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Assign Teachers{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+
+  <div class="dashboard-header flex justify-between items-center">
+    <h2>Assigned Subjects per Teacher</h2>
+    <a href="{% url 'academics:add_assignment_page' %}" class="add-subject-btn">+ Assign Teacher</a>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="info-note">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="bottom-section">
+    <div class="attendance-box">
+      <div class="search-container">
+    <input type="text"
+           class="search-input universal-search"
+           placeholder="Search anything (name, course, section, subject...)">
+  </div>
+      <h3>Assignments per Teacher</h3>
+
+      {% regroup offerings by teacher as teacher_groups %}
+
+      {% if teacher_groups %}
+        {% for teacher_group in teacher_groups %}
+          <table class="recent-table">
+            <thead>
+              <tr>
+                <th>Teacher</th>
+                <th>Assigned Subjects</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  {{ teacher_group.grouper.first_name }} {{ teacher_group.grouper.last_name }}
+                </td>
+                <td>
+                  <ul style="margin:0; padding-left:16px; text-align:left;">
+                    {% for offering in teacher_group.list %}
+                      <li>
+                        {{ offering.year }} - {{ offering.section|upper }} :
+                        {{ offering.subject.subject_code }} - {{ offering.subject.name }}
+                        ({{ offering.school_year }})
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </td>
+                <td>
+                  {% with first_offering=teacher_group.list.0 %}
+                  <a href="javascript:void(0);"
+                     onclick="window.location.href='{% url 'academics:edit_assignment_page' first_offering.id %}'; event.stopPropagation();"
+                     class="edit-btn">
+                    Edit
+                  </a>
+                  <a href="javascript:void(0);"
+                     class="delete-btn"
+                     data-teacher="{{ teacher_group.grouper.first_name }} {{ teacher_group.grouper.last_name }}"
+                     data-subject="all assigned subjects"
+                     data-url="{% url 'academics:delete_assignment' first_offering.id %}">
+                    Delete
+                  </a>
+                  {% endwith %}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        {% endfor %}
+      {% else %}
+        <p class="empty-row">No assignments found.</p>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteAssignmentModal" tabindex="-1" aria-labelledby="deleteAssignmentModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteAssignmentModalLabel">Confirm Remove Assignment</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to remove <strong id="assignmentSubject"></strong>
+        from <strong id="assignmentTeacher"></strong>?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteAssignmentBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<form id="deleteAssignmentForm" method="post" style="display:none;">
+  {% csrf_token %}
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const deleteButtons = document.querySelectorAll('.delete-btn');
+  const modalElement = document.getElementById('deleteAssignmentModal');
+  const deleteModal = new bootstrap.Modal(modalElement);
+  const subjectEl = document.getElementById('assignmentSubject');
+  const teacherEl = document.getElementById('assignmentTeacher');
+  const confirmBtn = document.getElementById('confirmDeleteAssignmentBtn');
+  const form = document.getElementById('deleteAssignmentForm');
+  let currentUrl = null;
+
+  deleteButtons.forEach(btn => {
+    btn.addEventListener('click', function () {
+      const subject = this.dataset.subject;
+      const teacher = this.dataset.teacher;
+      const url = this.dataset.url;
+
+      subjectEl.textContent = subject;
+      teacherEl.textContent = teacher;
+      currentUrl = url;
+      deleteModal.show();
+    });
+  });
+
+  confirmBtn.addEventListener('click', function () {
+    if (currentUrl && form) {
+      form.action = currentUrl;
+      form.submit();
+    }
+  });
+});
+</script>
+
+{% endblock %}

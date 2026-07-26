@@ -1,0 +1,44 @@
+{% extends 'teacherbase.html' %}
+{% block content %}
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h2>Assigned Subjects</h2>
+  </div>
+
+  <div class="attendance-box">
+    <div class="search-container">
+    <input type="text"
+           class="search-input universal-search"
+           placeholder="Search anything (name, course, section, subject...)">
+  </div>
+    <table class="recent-table">
+      <thead>
+        <tr>
+          <th>Subject Code</th>
+          <th>Subject Name</th>
+          <th>Course</th>
+          <th>Year</th>
+          <th>School Year</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if offerings %}
+          {% for offer in offerings %}
+          <tr>
+            <td>{{ offer.subject.subject_code }}</td>
+            <td>{{ offer.subject.name }}</td>
+            <td>{{ offer.subject.course.name }}</td>
+            <td>{{ offer.year }}</td>
+            <td>{{ offer.school_year }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="5" class="empty-row">No subjects assigned.</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

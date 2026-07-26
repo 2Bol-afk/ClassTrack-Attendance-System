@@ -1,0 +1,101 @@
+{% extends 'base_student.html' %}
+{% load static %}
+{% block title %}Attendance Overview{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/report.css' %}">
+<div class="dashboard-container">
+
+  <!-- Dashboard Header -->
+  <div class="dashboard-header">
+    <h2>Attendance Overview</h2>
+  </div>
+
+  <!-- Filters -->
+  <form method="GET" class="filter-form">
+    <div class="form-group">
+      <label for="subject">Subject:</label>
+      <select name="subject" id="subject">
+        <option value="">-- Select Subject --</option>
+        {% for subject in subjects %}
+        <option value="{{ subject.id }}" {% if selected_subject and selected_subject.id == subject.id %}selected{% endif %}>
+          {{ subject.name }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="start_date">Start Date:</label>
+      <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
+    </div>
+
+    <div class="form-group">
+      <label for="end_date">End Date:</label>
+      <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
+    </div>
+
+    <div class="form-group filter-button">
+      <button type="submit" class="add-student-btn">View</button>
+    </div>
+  </form>
+
+  <!-- Attendance Table -->
+  <div class="attendance-box">
+        <div class="search-container">
+  <input type="text" class="search-input universal-search" 
+         placeholder="Search anything (name, course, section, subject...)">
+</div>
+    <table class="recent-table">
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in attendance_records %}
+        <tr>
+          <td>{{ record.student.full_name }}</td>
+          <td>{{ record.date|date:"M d, Y" }}</td>
+          <td>{{ record.time|time:"H:i" }}</td>
+          <td>
+            <span class="status-label 
+              {% if record.status == 'present' %}present
+              {% elif record.status == 'absent' %}absent
+              {% else %}late{% endif %}">
+              {{ record.status|title }}
+            </span>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="3" class="empty-row">No attendance records found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+document.getElementById('subject').addEventListener('change', function() {
+    // Keep current start and end date values
+    const startDate = document.getElementById('start_date').value;
+    const endDate = document.getElementById('end_date').value;
+
+    // Create a new URLSearchParams object with current values
+    const params = new URLSearchParams();
+    if (this.value) params.set('subject', this.value);
+    if (startDate) params.set('start_date', startDate);
+    if (endDate) params.set('end_date', endDate);
+
+    // Reload the page with updated query params
+    window.location.search = params.toString();
+});
+</script>
+
+{% endblock %}

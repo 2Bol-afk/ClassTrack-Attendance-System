@@ -1,0 +1,81 @@
+{% extends 'base_parent.html' %}
+{% load static %}
+
+{% block title %}Child Attendance{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/report.css' %}">
+
+<div class="dashboard-container">
+
+  <!-- Header -->
+  <div class="dashboard-header">
+    <h2>Attendance for {{ student.full_name }}</h2>
+  </div>
+
+  <!-- Filters -->
+  <form method="GET" class="filter-form">
+    <div class="form-group">
+      <label for="subject">Subject:</label>
+      <select name="subject" id="subject">
+        <option value="">-- All Subjects --</option>
+        {% for subject in subjects %}
+          <option value="{{ subject.id }}" {% if selected_subject and selected_subject.id == subject.id %}selected{% endif %}>
+            {{ subject.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="start_date">Start Date:</label>
+      <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
+    </div>
+
+    <div class="form-group">
+      <label for="end_date">End Date:</label>
+      <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
+    </div>
+
+    <div class="form-group filter-button">
+      <button type="submit" class="add-student-btn">View</button>
+    </div>
+  </form>
+
+  <!-- Attendance Table -->
+  <div class="attendance-box">
+    <h3>Attendance Records</h3>
+    <table class="recent-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Subject</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in attendance_records %}
+        <tr>
+          <td>{{ record.date|date:"M d, Y" }}</td>
+          <td>{{ record.subject_offering.subject.name }}</td>
+          <td>
+            <span class="status-label 
+              {% if record.status == 'present' %}present
+              {% elif record.status == 'absent' %}absent
+              {% else %}late{% endif %}">
+              {{ record.status|title }}
+            </span>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="3" class="empty-row">No attendance records found for the selected filters.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+{% endblock %}

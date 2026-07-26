@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="dashboard-container">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <h2>Manage Students</h2>
+    <a href="{% url 'accounts:add_student' %}" class="add-student-btn">+ Add Student</a>
+  </div>
+
+  {% if messages %}
+  <div class="mt-4">
+    {% for message in messages %}
+      <div class="info-note">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+
+  <!-- Students Table -->
+  <div class="attendance-box">
+    <div class="search-container">
+      <input type="text"
+             class="search-input universal-search"
+             placeholder="Search anything (name, course, section, subject...)">
+    </div>
+    
+    <table class="recent-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Course</th>
+          <th>Year</th>
+          <th>Section</th>
+          <th>Student Type</th>
+          <th>Subjects</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for student in students %}
+        <tr>
+          <td>{{ student.student_ID }}</td>
+          <td>{{ student.first_name }} {{ student.middle_name }} {{ student.last_name }}</td>
+          <td>{{ student.course.name|default:"N/A" }}</td>
+          <td>{{ student.year }}</td>
+          <td>{{ student.section }}</td>
+          <td>
+            {% if student.is_regular == 'reg' %}
+              Regular
+            {% elif student.is_regular == 'irreg' %}
+              Irregular
+            {% else %}
+              {{ student.is_regular }}
+            {% endif %}
+          </td>
+<td>
+  {% if student.subject_list %}
+    <ul style="margin:0; padding-left: 15px;">
+      {% for subject in student.subject_list %}
+        <li>{{ subject.subject_code }} - {{ subject.name }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <span style="color: #9ca3af;">No subjects</span>
+  {% endif %}
+</td>
+
+          <td>
+            <a href="javascript:void(0);" 
+   onclick="window.location.href='{% url 'accounts:edit_student' student.student_ID %}'; event.stopPropagation();" 
+   class="edit-btn">Edit</a>
+
+<a href="javascript:void(0);" 
+   class="delete-btn"
+   data-student-name="{{ student.first_name }} {{ student.last_name }}"
+   data-url="{% url 'accounts:delete_student' student.student_ID %}">
+   Delete
+</a>
+
+
+
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" class="empty-row">No students found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete <strong id="studentName"></strong>?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <a href="#" id="confirmDeleteBtn" class="btn btn-danger">Delete</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const deleteButtons = document.querySelectorAll('.delete-btn');
+  const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+  const studentNameEl = document.getElementById('studentName');
+  const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+
+  deleteButtons.forEach(btn => {
+    btn.addEventListener('click', function () {
+      const studentName = this.dataset.studentName;
+      const url = this.dataset.url; // Use Django-generated URL
+
+      studentNameEl.textContent = studentName;
+      confirmDeleteBtn.href = url; // Set modal "Delete" link
+      deleteModal.show();
+    });
+  });
+});
+</script>
+
+
+{% endblock %}
