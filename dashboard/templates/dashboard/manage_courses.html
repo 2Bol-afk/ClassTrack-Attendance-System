@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Courses | ClassTrack{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/courses.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="courses-page">
+  <header class="courses-header">
+    <div>
+      <h2>Courses & Majors</h2>
+      <p>Manage degree programs and the majors students can choose within them.</p>
+    </div>
+    <div class="course-count" aria-label="{{ courses|length }} courses">
+      <strong>{{ courses|length }}</strong>
+      <span>Courses</span>
+    </div>
+  </header>
+
+  {% if messages %}
+    <div class="message-list" role="status">
+      {% for message in messages %}
+        <div class="message-item">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="course-layout">
+    <section class="course-form-panel" aria-labelledby="add-course-title">
+      <h3 id="add-course-title">Add a Course</h3>
+      <p>Create a degree program and list its available majors.</p>
+
+      <form method="post" action="{% url 'academics:add_course' %}" data-major-form>
+        {% csrf_token %}
+        <div class="course-field">
+          <label for="{{ course_form.name.id_for_label }}">Course code or name</label>
+          {{ course_form.name }}
+        </div>
+        <div class="course-field">
+          <label for="{{ course_form.description.id_for_label }}">Full course title</label>
+          {{ course_form.description }}
+        </div>
+        <div class="course-field">
+          <div class="major-heading">
+            <label>Majors / branches</label>
+            <button type="button" class="text-action" data-bsed-example>Use BSED example</button>
+          </div>
+          <div class="major-list" data-major-list>
+            {% include 'dashboard/partials/major_row.html' %}
+          </div>
+          <button type="button" class="add-major-button" data-add-major>+ Add another major</button>
+        </div>
+        <button type="submit" class="primary-button">Save Course</button>
+      </form>
+    </section>
+
+    <section class="course-list-panel" aria-labelledby="course-list-title">
+      <div class="course-list-heading">
+        <div>
+          <h3 id="course-list-title">Course Directory</h3>
+          <p>Review majors, linked students, and subjects.</p>
+        </div>
+        <input type="search" class="course-search" placeholder="Search courses" aria-label="Search courses" data-course-search>
+      </div>
+
+      <div class="course-items">
+        {% for course in courses %}
+          <article class="course-item" data-course-item data-search="{{ course.name }} {{ course.description }} {% for major in course.majors.all %}{{ major.name }} {% endfor %}">
+            <div>
+              <h4>{{ course.name }}</h4>
+              <p class="course-description">{{ course.description }}</p>
+              <div class="major-chips">
+                {% for major in course.majors.all %}
+                  <span class="major-chip">Major in {{ major.name }}</span>
+                {% empty %}
+                  <span class="empty-major">No majors configured</span>
+                {% endfor %}
+              </div>
+              <div class="course-meta">
+                <span>{{ course.student_count }} student{{ course.student_count|pluralize }}</span>
+                <span>{{ course.subject_count }} subject{{ course.subject_count|pluralize }}</span>
+              </div>
+            </div>
+            <div class="course-actions">
+              <button type="button" class="icon-button" data-open-dialog="edit-course-{{ course.id }}" aria-label="Edit {{ course.name }}" title="Edit course">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M12 20h9"/>
+                  <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/>
+                </svg>
+              </button>
+              <button type="button" class="icon-button" data-open-dialog="delete-course-{{ course.id }}" aria-label="Delete {{ course.name }}" title="Delete course">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v5M14 11v5"/>
+                </svg>
+              </button>
+            </div>
+          </article>
+
+          <dialog class="course-dialog" id="edit-course-{{ course.id }}">
+            <div class="dialog-body">
+              <div class="dialog-heading">
+                <h3>Edit {{ course.name }}</h3>
+                <button type="button" class="icon-button" data-close-dialog aria-label="Close" title="Close">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M18 6 6 18M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+              <form method="post" action="{% url 'academics:edit_course' course.id %}" data-major-form>
+                {% csrf_token %}
+                <div class="course-field">
+                  <label for="course-name-{{ course.id }}">Course code or name</label>
+                  <input id="course-name-{{ course.id }}" type="text" name="name" value="{{ course.name }}" required>
+                </div>
+                <div class="course-field">
+                  <label for="course-description-{{ course.id }}">Full course title</label>
+                  <input id="course-description-{{ course.id }}" type="text" name="description" value="{{ course.description }}" required>
+                </div>
+                <div class="course-field">
+                  <div class="major-heading">
+                    <label>Majors / branches</label>
+                    <button type="button" class="text-action" data-bsed-example>Use BSED example</button>
+                  </div>
+                  <div class="major-list" data-major-list>
+                    {% for major in course.majors.all %}
+                      {% include 'dashboard/partials/major_row.html' with major_name=major.name %}
+                    {% empty %}
+                      {% include 'dashboard/partials/major_row.html' %}
+                    {% endfor %}
+                  </div>
+                  <button type="button" class="add-major-button" data-add-major>+ Add another major</button>
+                </div>
+                <div class="dialog-actions">
+                  <button type="button" class="secondary-button" data-close-dialog>Cancel</button>
+                  <button type="submit" class="primary-button">Save Changes</button>
+                </div>
+              </form>
+            </div>
+          </dialog>
+
+          <dialog class="course-dialog" id="delete-course-{{ course.id }}">
+            <div class="dialog-body">
+              <div class="dialog-heading">
+                <h3>Delete {{ course.name }}?</h3>
+                <button type="button" class="icon-button" data-close-dialog aria-label="Close" title="Close">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M18 6 6 18M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+              <p>This also removes its majors. Linked students keep their accounts but their course and major become unassigned.</p>
+              <form method="post" action="{% url 'academics:delete_course' course.id %}">
+                {% csrf_token %}
+                <div class="dialog-actions">
+                  <button type="button" class="secondary-button" data-close-dialog>Cancel</button>
+                  <button type="submit" class="danger-button">Delete Course</button>
+                </div>
+              </form>
+            </div>
+          </dialog>
+        {% empty %}
+          <div class="empty-courses">No courses yet. Add the first course using the form.</div>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+</main>
+
+<template id="major-row-template">
+  {% include 'dashboard/partials/major_row.html' %}
+</template>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const rowTemplate = document.getElementById('major-row-template');
+
+  function addMajorRow(form, value = '') {
+    const row = rowTemplate.content.firstElementChild.cloneNode(true);
+    row.querySelector('input').value = value;
+    form.querySelector('[data-major-list]').appendChild(row);
+  }
+
+  document.addEventListener('click', (event) => {
+    const addButton = event.target.closest('[data-add-major]');
+    if (addButton) {
+      addMajorRow(addButton.closest('[data-major-form]'));
+      return;
+    }
+
+    const removeButton = event.target.closest('[data-remove-major]');
+    if (removeButton) {
+      const form = removeButton.closest('[data-major-form]');
+      const rows = form.querySelectorAll('.major-row');
+      if (rows.length === 1) {
+        rows[0].querySelector('input').value = '';
+      } else {
+        removeButton.closest('.major-row').remove();
+      }
+      return;
+    }
+
+    const exampleButton = event.target.closest('[data-bsed-example]');
+    if (exampleButton) {
+      const form = exampleButton.closest('[data-major-form]');
+      form.querySelector('[name="name"]').value = 'BSED';
+      form.querySelector('[name="description"]').value = 'Bachelor of Secondary Education';
+      form.querySelector('[data-major-list]').innerHTML = '';
+      ['English', 'Science', 'Filipino', 'Mathematics'].forEach(name => addMajorRow(form, name));
+      return;
+    }
+
+    const openButton = event.target.closest('[data-open-dialog]');
+    if (openButton) {
+      document.getElementById(openButton.dataset.openDialog).showModal();
+      return;
+    }
+
+    const closeButton = event.target.closest('[data-close-dialog]');
+    if (closeButton) {
+      closeButton.closest('dialog').close();
+    }
+  });
+
+  const search = document.querySelector('[data-course-search]');
+  if (search) {
+    search.addEventListener('input', () => {
+      const query = search.value.trim().toLowerCase();
+      document.querySelectorAll('[data-course-item]').forEach(item => {
+        item.hidden = !item.dataset.search.toLowerCase().includes(query);
+      });
+    });
+  }
+});
+</script>
+{% endblock %}

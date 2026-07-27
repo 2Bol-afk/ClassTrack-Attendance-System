@@ -19,11 +19,27 @@ class Semester(models.Model):
 
 # Course
 class Course(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     description = models.CharField(max_length=255)
 
     def __str__(self):
         return f"{self.name} - {self.description}"
+
+
+class CourseMajor(models.Model):
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name='majors',
+    )
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        ordering = ('name',)
+        unique_together = ('course', 'name')
+
+    def __str__(self):
+        return f"{self.course.name} - Major in {self.name}"
 
 
 # Subject (constant curriculum)

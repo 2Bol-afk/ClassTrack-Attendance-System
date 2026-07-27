@@ -27,7 +27,7 @@ from .helpers import generate_unique_email
 
 @login_required
 def manage_student(request):
-    students = StudentProfile.objects.select_related('course').all()
+    students = StudentProfile.objects.select_related('course', 'major').all()
 
     # Attach subjects to each student
     for student in students:

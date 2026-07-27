@@ -1,7 +1,7 @@
 from django.db import IntegrityError, transaction
 from django.test import TestCase
 
-from academics.models import Course, Semester, Subject
+from academics.models import Course, CourseMajor, Semester, Subject
 
 
 class AcademicModelTests(TestCase):
@@ -25,3 +25,19 @@ class AcademicModelTests(TestCase):
         )
 
         self.assertEqual(str(subject), "BSIT - IT101 - 1st - 1st")
+
+    def test_course_major_is_unique_within_a_course(self):
+        course = Course.objects.create(
+            name="BSED",
+            description="Bachelor of Secondary Education",
+        )
+        CourseMajor.objects.create(course=course, name="English")
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            CourseMajor.objects.create(course=course, name="English")
+
+    def test_course_names_are_unique(self):
+        Course.objects.create(name="BSIT", description="Information Technology")
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Course.objects.create(name="BSIT", description="Duplicate")

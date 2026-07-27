@@ -6,6 +6,12 @@ from . import views
 app_name = 'academics'
 
 urlpatterns = [
+    path('courses/', views.manage_courses, name='manage_courses'),
+    path('courses/add/', views.add_course, name='add_course'),
+    path('courses/<int:course_id>/edit/', views.edit_course, name='edit_course'),
+    path('courses/<int:course_id>/delete/', views.delete_course, name='delete_course'),
+    path('courses/<int:course_id>/majors/', views.load_majors, name='load_majors'),
+
     path('subjects/', views.manage_subject, name='manage_subjects'),
     path('subjects/add/', views.add_subject, name='add_subject'),
     path('subjects/edit/<int:subject_id>/', views.edit_subject, name='edit_subject'),

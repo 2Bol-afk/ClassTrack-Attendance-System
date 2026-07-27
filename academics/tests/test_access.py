@@ -5,6 +5,8 @@ from django.urls import reverse
 class AcademicAccessTests(SimpleTestCase):
     def test_anonymous_users_are_redirected_from_academic_tools(self):
         route_names = [
+            "academics:manage_courses",
+            "academics:add_course",
             "academics:manage_subjects",
             "academics:add_subject",
             "academics:assign_teacher",

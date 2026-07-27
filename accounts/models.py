@@ -42,6 +42,13 @@ class StudentProfile(models.Model):
     middle_name = models.CharField(max_length=50, blank=True, null=True)
     last_name = models.CharField(max_length=50)
     course = models.ForeignKey("academics.Course", on_delete=models.SET_NULL, null=True)
+    major = models.ForeignKey(
+        "academics.CourseMajor",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='students',
+    )
     parents = models.ManyToManyField(ParentProfile, related_name='students', blank=True)
     year = models.CharField(max_length=10, choices=YEAR_LEVEL_CHOICES)
     section = models.CharField(max_length=5, choices=SECTION_CHOICES)

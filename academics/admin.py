@@ -1,5 +1,10 @@
 from django.contrib import admin
-from .models import Subject, Course, Semester, SubjectOffering,Attendance
+from .models import Attendance, Course, CourseMajor, Semester, Subject, SubjectOffering
+
+
+class CourseMajorInline(admin.TabularInline):
+    model = CourseMajor
+    extra = 1
 
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
@@ -9,6 +14,8 @@ class SubjectAdmin(admin.ModelAdmin):
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     list_display = ('name', 'description')
+    search_fields = ('name', 'description')
+    inlines = (CourseMajorInline,)
 
 @admin.register(Semester)
 class SemesterAdmin(admin.ModelAdmin):
